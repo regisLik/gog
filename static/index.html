@@ -198,6 +198,33 @@
             0%, 30% { transform: scale(1) rotate(0deg); opacity: 1; filter: blur(0px); }
             70%, 100% { transform: scale(5) rotate(540deg); opacity: 0; filter: blur(4px); }
         }
+
+        @keyframes arcOrbitAnim {
+            0% {
+                transform: translate(-50%, -50%) rotate(-45deg) translateY(-120vh) scale(0.5);
+                opacity: 0;
+            }
+            10% {
+                transform: translate(-50%, -50%) rotate(-36deg) translateY(-120vh) scale(1);
+                opacity: 1;
+            }
+            90% {
+                transform: translate(-50%, -50%) rotate(36deg) translateY(-120vh) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) rotate(45deg) translateY(-120vh) scale(0.5);
+                opacity: 0;
+            }
+        }
+        
+        .arc-card-wrapper {
+            animation: arcOrbitAnim 40s linear infinite;
+        }
+
+        #orbit-container:hover .arc-card-wrapper {
+            animation-play-state: paused;
+        }
     </style>
 </head>
 <body class="bg-background text-on-background min-h-screen flex flex-col font-body-md overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container relative">
@@ -248,7 +275,78 @@
 </div>
 </div>
 <!-- Orbiting Quick Actions -->
-<div id="orbit-container" class="absolute left-1/2 w-0 h-0 z-10" style="bottom: -50vh;"></div>
+<div id="orbit-container" class="absolute left-1/2 w-0 h-0 z-10 pointer-events-none" style="bottom: -70vh;"><!-- Card 1 -->
+<div class="absolute arc-card-wrapper" style="animation-delay: 0s;">
+<button class="card-blue rounded-3xl p-4 flex flex-col items-center justify-center gap-2 hover:scale-[1.05] transition-transform duration-300 group border border-white/40 shadow-sm focus:outline-none focus:ring-2 focus:ring-secondary/50 pointer-events-auto orbit-float w-36 h-32" style="animation-delay: 0s;">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined fill-icon">code</span>
+</div>
+<h3 class="font-body-md text-sm font-semibold text-on-background group-hover:text-secondary transition-colors text-center">Développeur Web</h3>
+</button>
+</div>
+<!-- Card 2 -->
+<div class="absolute arc-card-wrapper" style="animation-delay: -5s;">
+<button class="card-purple rounded-3xl p-4 flex flex-col items-center justify-center gap-2 hover:scale-[1.05] transition-transform duration-300 group border border-white/40 shadow-sm focus:outline-none focus:ring-2 focus:ring-tertiary/50 pointer-events-auto orbit-float w-36 h-32" style="animation-delay: 0.5s;">
+<div class="w-10 h-10 rounded-full bg-tertiary-container flex items-center justify-center text-on-tertiary-container">
+<span class="material-symbols-outlined fill-icon">palette</span>
+</div>
+<h3 class="font-body-md text-sm font-semibold text-on-background group-hover:text-tertiary transition-colors text-center">UX Designer</h3>
+</button>
+</div>
+<!-- Card 3 -->
+<div class="absolute arc-card-wrapper" style="animation-delay: -10s;">
+<button class="card-green rounded-3xl p-4 flex flex-col items-center justify-center gap-2 hover:scale-[1.05] transition-transform duration-300 group border border-white/40 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 pointer-events-auto orbit-float w-36 h-32" style="animation-delay: 1s;">
+<div class="w-10 h-10 rounded-full bg-[#d0e8d3] flex items-center justify-center text-[#2d5a35]">
+<span class="material-symbols-outlined fill-icon">energy_savings_leaf</span>
+</div>
+<h3 class="font-body-md text-sm font-semibold text-on-background group-hover:text-[#2d5a35] transition-colors text-center">Analyste Environnemental</h3>
+</button>
+</div>
+<!-- Card 4 -->
+<div class="absolute arc-card-wrapper" style="animation-delay: -15s;">
+<button class="card-orange rounded-3xl p-4 flex flex-col items-center justify-center gap-2 hover:scale-[1.05] transition-transform duration-300 group border border-white/40 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#cc6600]/50 pointer-events-auto orbit-float w-36 h-32" style="animation-delay: 1.5s;">
+<div class="w-10 h-10 rounded-full bg-[#ffe6cc] flex items-center justify-center text-[#cc6600]">
+<span class="material-symbols-outlined fill-icon">monitoring</span>
+</div>
+<h3 class="font-body-md text-sm font-semibold text-on-background group-hover:text-[#cc6600] transition-colors text-center">Data Scientist</h3>
+</button>
+</div>
+<!-- Card 5 -->
+<div class="absolute arc-card-wrapper" style="animation-delay: -20s;">
+<button class="card-pink rounded-3xl p-4 flex flex-col items-center justify-center gap-2 hover:scale-[1.05] transition-transform duration-300 group border border-white/40 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#cc0033]/50 pointer-events-auto orbit-float w-36 h-32" style="animation-delay: 2s;">
+<div class="w-10 h-10 rounded-full bg-[#ffdae0] flex items-center justify-center text-[#cc0033]">
+<span class="material-symbols-outlined fill-icon">view_kanban</span>
+</div>
+<h3 class="font-body-md text-sm font-semibold text-on-background group-hover:text-[#cc0033] transition-colors text-center">Product Manager</h3>
+</button>
+</div>
+<!-- Card 6 -->
+<div class="absolute arc-card-wrapper" style="animation-delay: -25s;">
+<button class="card-blue rounded-3xl p-4 flex flex-col items-center justify-center gap-2 hover:scale-[1.05] transition-transform duration-300 group border border-white/40 shadow-sm focus:outline-none focus:ring-2 focus:ring-secondary/50 pointer-events-auto orbit-float w-36 h-32" style="animation-delay: 0.8s;">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined fill-icon">security</span>
+</div>
+<h3 class="font-body-md text-sm font-semibold text-on-background group-hover:text-secondary transition-colors text-center">Expert Cybersécurité</h3>
+</button>
+</div>
+<!-- Card 7 -->
+<div class="absolute arc-card-wrapper" style="animation-delay: -30s;">
+<button class="card-purple rounded-3xl p-4 flex flex-col items-center justify-center gap-2 hover:scale-[1.05] transition-transform duration-300 group border border-white/40 shadow-sm focus:outline-none focus:ring-2 focus:ring-tertiary/50 pointer-events-auto orbit-float w-36 h-32" style="animation-delay: 1.2s;">
+<div class="w-10 h-10 rounded-full bg-tertiary-container flex items-center justify-center text-on-tertiary-container">
+<span class="material-symbols-outlined fill-icon">smart_toy</span>
+</div>
+<h3 class="font-body-md text-sm font-semibold text-on-background group-hover:text-tertiary transition-colors text-center">Ingénieur IA</h3>
+</button>
+</div>
+<!-- Card 8 -->
+<div class="absolute arc-card-wrapper" style="animation-delay: -35s;">
+<button class="card-green rounded-3xl p-4 flex flex-col items-center justify-center gap-2 hover:scale-[1.05] transition-transform duration-300 group border border-white/40 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 pointer-events-auto orbit-float w-36 h-32" style="animation-delay: 0.3s;">
+<div class="w-10 h-10 rounded-full bg-[#d0e8d3] flex items-center justify-center text-[#2d5a35]">
+<span class="material-symbols-outlined fill-icon">cloud</span>
+</div>
+<h3 class="font-body-md text-sm font-semibold text-on-background group-hover:text-[#2d5a35] transition-colors text-center">Architecte Cloud</h3>
+</button>
+</div></div>
 </div>
 </section>
 
