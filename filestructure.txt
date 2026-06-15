@@ -1,0 +1,16 @@
+|-- first_message.txt
+|-- index_diff.txt
+|-- index_diff_utf8.txt
+|-- main.py
+|-- requirements.txt
+|-- run_server.bat
+|-- script_tag.txt
+|-- static
+    |-- index.html
+    |-- jobs.json
+    |-- script.js
+    |-- style.css
+|-- wheel.txt
+|-- wheel2.txt
+|-- __pycache__
+    |-- main.cpython-313.pyc

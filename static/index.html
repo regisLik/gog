@@ -175,30 +175,6 @@
             animation-play-state: paused;
         }
 
-        @keyframes scrollUpChat {
-            0% { transform: translateY(300px); }
-            100% { transform: translateY(-100%); }
-        }
-        @keyframes shimmer {
-            to { background-position: 200% center; }
-        }
-        @keyframes jogJ {
-            0% { transform: translateX(-150px) rotate(-90deg); opacity: 0; }
-            15%, 100% { transform: translateX(0) rotate(0deg); opacity: 1; }
-        }
-        @keyframes jogO {
-            0% { transform: translateY(-150px) scale(0.2); opacity: 0; }
-            15%, 100% { transform: translateY(0) scale(1); opacity: 1; }
-        }
-        @keyframes jogG {
-            0% { transform: translateX(150px) rotate(90deg); opacity: 0; }
-            15%, 100% { transform: translateX(0) rotate(0deg); opacity: 1; }
-        }
-        @keyframes jogContainer {
-            0%, 30% { transform: scale(1) rotate(0deg); opacity: 1; filter: blur(0px); }
-            70%, 100% { transform: scale(5) rotate(540deg); opacity: 0; filter: blur(4px); }
-        }
-
         @keyframes arcOrbitAnim {
             0% {
                 transform: translate(-50%, -50%) rotate(-45deg) translateY(-120vh) scale(0.5);
@@ -222,27 +198,39 @@
             animation: arcOrbitAnim 40s linear infinite;
         }
 
-        #orbit-container:hover .arc-card-wrapper {
+        #orbit-container:hover .arc-card-wrapper,
+        #orbit-container.orbit-paused .arc-card-wrapper {
             animation-play-state: paused;
+        }
+
+        /* Scroll reveal: each phrase fades in (and rises) one after another */
+        .reveal-line {
+            opacity: 0;
+            transform: translateY(28px);
+            transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+            will-change: opacity, transform;
+        }
+        .reveal-line.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Stat cards slide in from their own side (left or right) on scroll */
+        .stat-card {
+            opacity: 0;
+            transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+            will-change: opacity, transform;
+        }
+        .stat-card.from-left { transform: translateX(-48px); }
+        .stat-card.from-right { transform: translateX(48px); }
+        .stat-card.is-visible {
+            opacity: 1;
+            transform: translateX(0);
         }
     </style>
 </head>
 <body class="bg-background text-on-background min-h-screen flex flex-col font-body-md overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container relative">
-<!-- Top App Bar -->
-<header class="fixed top-0 w-full z-40 bg-surface/80 dark:bg-inverse-surface/80 backdrop-blur-xl border-b border-white/10 dark:border-inverse-surface/20 shadow-sm flex justify-between items-center px-gutter py-4 max-w-container-max mx-auto left-0 right-0">
-<div class="flex items-center gap-2">
-<span class="font-display-lg text-headline-lg-mobile md:text-headline-lg text-primary dark:text-primary-fixed tracking-tight">JOG</span>
-</div>
-<div class="flex items-center gap-4">
-<button class="p-2 rounded-full hover:opacity-80 transition-opacity scale-95 active:scale-90 text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary/50">
-<span class="material-symbols-outlined">account_circle</span>
-</button>
-<button class="p-2 rounded-full hover:opacity-80 transition-opacity scale-95 active:scale-90 text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary/50 relative">
-<span class="material-symbols-outlined">notifications</span>
-<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
-</button>
-</div>
-</header>
+
 <!-- Main Content Canvas -->
 <main class="flex-grow flex flex-col w-full z-10">
 <section class="relative flex flex-col items-center justify-center w-full px-margin-mobile md:px-gutter pt-24 pb-32 md:pb-24 min-h-screen">
@@ -275,213 +263,66 @@
 </div>
 </div>
 <!-- Orbiting Quick Actions -->
-<div id="orbit-container" class="absolute left-1/2 w-0 h-0 z-10 pointer-events-none" style="bottom: -70vh;"><!-- Card 1 -->
-<div class="absolute arc-card-wrapper" style="animation-delay: 0s;">
-<button class="card-blue rounded-3xl p-4 flex flex-col items-center justify-center gap-2 hover:scale-[1.05] transition-transform duration-300 group border border-white/40 shadow-sm focus:outline-none focus:ring-2 focus:ring-secondary/50 pointer-events-auto orbit-float w-36 h-32" style="animation-delay: 0s;">
-<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">
-<span class="material-symbols-outlined fill-icon">code</span>
+<div id="orbit-container" class="absolute left-1/2 w-0 h-0 z-10 pointer-events-none" style="bottom: -70vh;">
 </div>
-<h3 class="font-body-md text-sm font-semibold text-on-background group-hover:text-secondary transition-colors text-center">Développeur Web</h3>
-</button>
-</div>
-<!-- Card 2 -->
-<div class="absolute arc-card-wrapper" style="animation-delay: -5s;">
-<button class="card-purple rounded-3xl p-4 flex flex-col items-center justify-center gap-2 hover:scale-[1.05] transition-transform duration-300 group border border-white/40 shadow-sm focus:outline-none focus:ring-2 focus:ring-tertiary/50 pointer-events-auto orbit-float w-36 h-32" style="animation-delay: 0.5s;">
-<div class="w-10 h-10 rounded-full bg-tertiary-container flex items-center justify-center text-on-tertiary-container">
-<span class="material-symbols-outlined fill-icon">palette</span>
-</div>
-<h3 class="font-body-md text-sm font-semibold text-on-background group-hover:text-tertiary transition-colors text-center">UX Designer</h3>
-</button>
-</div>
-<!-- Card 3 -->
-<div class="absolute arc-card-wrapper" style="animation-delay: -10s;">
-<button class="card-green rounded-3xl p-4 flex flex-col items-center justify-center gap-2 hover:scale-[1.05] transition-transform duration-300 group border border-white/40 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 pointer-events-auto orbit-float w-36 h-32" style="animation-delay: 1s;">
-<div class="w-10 h-10 rounded-full bg-[#d0e8d3] flex items-center justify-center text-[#2d5a35]">
-<span class="material-symbols-outlined fill-icon">energy_savings_leaf</span>
-</div>
-<h3 class="font-body-md text-sm font-semibold text-on-background group-hover:text-[#2d5a35] transition-colors text-center">Analyste Environnemental</h3>
-</button>
-</div>
-<!-- Card 4 -->
-<div class="absolute arc-card-wrapper" style="animation-delay: -15s;">
-<button class="card-orange rounded-3xl p-4 flex flex-col items-center justify-center gap-2 hover:scale-[1.05] transition-transform duration-300 group border border-white/40 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#cc6600]/50 pointer-events-auto orbit-float w-36 h-32" style="animation-delay: 1.5s;">
-<div class="w-10 h-10 rounded-full bg-[#ffe6cc] flex items-center justify-center text-[#cc6600]">
-<span class="material-symbols-outlined fill-icon">monitoring</span>
-</div>
-<h3 class="font-body-md text-sm font-semibold text-on-background group-hover:text-[#cc6600] transition-colors text-center">Data Scientist</h3>
-</button>
-</div>
-<!-- Card 5 -->
-<div class="absolute arc-card-wrapper" style="animation-delay: -20s;">
-<button class="card-pink rounded-3xl p-4 flex flex-col items-center justify-center gap-2 hover:scale-[1.05] transition-transform duration-300 group border border-white/40 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#cc0033]/50 pointer-events-auto orbit-float w-36 h-32" style="animation-delay: 2s;">
-<div class="w-10 h-10 rounded-full bg-[#ffdae0] flex items-center justify-center text-[#cc0033]">
-<span class="material-symbols-outlined fill-icon">view_kanban</span>
-</div>
-<h3 class="font-body-md text-sm font-semibold text-on-background group-hover:text-[#cc0033] transition-colors text-center">Product Manager</h3>
-</button>
-</div>
-<!-- Card 6 -->
-<div class="absolute arc-card-wrapper" style="animation-delay: -25s;">
-<button class="card-blue rounded-3xl p-4 flex flex-col items-center justify-center gap-2 hover:scale-[1.05] transition-transform duration-300 group border border-white/40 shadow-sm focus:outline-none focus:ring-2 focus:ring-secondary/50 pointer-events-auto orbit-float w-36 h-32" style="animation-delay: 0.8s;">
-<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">
-<span class="material-symbols-outlined fill-icon">security</span>
-</div>
-<h3 class="font-body-md text-sm font-semibold text-on-background group-hover:text-secondary transition-colors text-center">Expert Cybersécurité</h3>
-</button>
-</div>
-<!-- Card 7 -->
-<div class="absolute arc-card-wrapper" style="animation-delay: -30s;">
-<button class="card-purple rounded-3xl p-4 flex flex-col items-center justify-center gap-2 hover:scale-[1.05] transition-transform duration-300 group border border-white/40 shadow-sm focus:outline-none focus:ring-2 focus:ring-tertiary/50 pointer-events-auto orbit-float w-36 h-32" style="animation-delay: 1.2s;">
-<div class="w-10 h-10 rounded-full bg-tertiary-container flex items-center justify-center text-on-tertiary-container">
-<span class="material-symbols-outlined fill-icon">smart_toy</span>
-</div>
-<h3 class="font-body-md text-sm font-semibold text-on-background group-hover:text-tertiary transition-colors text-center">Ingénieur IA</h3>
-</button>
-</div>
-<!-- Card 8 -->
-<div class="absolute arc-card-wrapper" style="animation-delay: -35s;">
-<button class="card-green rounded-3xl p-4 flex flex-col items-center justify-center gap-2 hover:scale-[1.05] transition-transform duration-300 group border border-white/40 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 pointer-events-auto orbit-float w-36 h-32" style="animation-delay: 0.3s;">
-<div class="w-10 h-10 rounded-full bg-[#d0e8d3] flex items-center justify-center text-[#2d5a35]">
-<span class="material-symbols-outlined fill-icon">cloud</span>
-</div>
-<h3 class="font-body-md text-sm font-semibold text-on-background group-hover:text-[#2d5a35] transition-colors text-center">Architecte Cloud</h3>
-</button>
-</div></div>
 </div>
 </section>
 
-<!-- Section 2 : Découvrez -->
-<section class="w-full py-24 bg-surface-container-lowest relative z-20 px-margin-mobile md:px-gutter">
+<!-- Section 2 : À propos de JOG -->
+<section id="about-jog" class="relative w-full overflow-hidden bg-[#faf4db] z-20 px-margin-mobile md:px-gutter py-24 md:py-32 min-h-[70vh] flex items-center">
+<!-- Soft white halo behind the text (same spirit as the glow in section 1) -->
+<div class="absolute inset-0 pointer-events-none" style="background: radial-gradient(ellipse 55% 45% at 50% 50%, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.55) 35%, rgba(255,255,255,0) 70%);"></div>
+
+<div class="relative max-w-4xl mx-auto flex flex-col items-center text-center">
+<p class="reveal-line font-label-sm text-label-sm tracking-[0.12em] text-on-secondary-fixed-variant mb-6">À propos de JOG</p>
+<h2 class="font-display-lg font-bold text-[2rem] sm:text-[2.75rem] lg:text-[3.5rem] leading-[1.1] tracking-tight text-on-secondary-fixed">
+<span class="reveal-line block">Une plateforme d'orientation</span>
+<span class="reveal-line block">propulsée par l'IA,</span>
+<span class="reveal-line block">pensée pour faire grandir votre carrière</span>
+</h2>
+</div>
+</section>
+
+<!-- Section 3 : Chiffres clés -->
+<section id="key-figures" class="w-full bg-surface-container-lowest relative z-20 px-margin-mobile md:px-gutter py-24 md:py-32">
 <div class="max-w-container-max mx-auto">
-<h2 class="font-headline-lg text-headline-lg-mobile md:text-[36px] text-on-background mb-10 font-bold tracking-tight text-left">Découvrez JOG</h2>
+<!-- Heading -->
+<div class="text-center mb-16 md:mb-20">
+<p class="font-label-sm text-label-sm tracking-[0.12em] text-on-surface-variant mb-4">Le constat</p>
+<h2 class="font-display-lg font-bold text-[2rem] sm:text-[2.75rem] tracking-tight text-on-background">Les 4 chiffres clés</h2>
+</div>
 
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-    <!-- Left Column: Visual Mockup -->
-    <div class="bg-[#f6f5f0] rounded-2xl p-6 md:p-12 flex items-center justify-center min-h-[400px] lg:min-h-[500px] relative overflow-hidden">
-        
-        <!-- Step 1 Mockup (Prompt Box) -->
-        <div id="mockup-1" class="mockup-view bg-white rounded-2xl p-5 shadow-[0_4px_24px_rgba(0,0,0,0.06)] border border-surface-variant/30 w-full max-w-[420px] transition-all duration-300 transform scale-100 opacity-100 relative z-10">
-            <div class="text-[13px] text-on-background mb-12 flex items-center font-medium">
-                Quelles sont les compétences pour devenir développeur web ?<span class="inline-block w-[1.5px] h-4 bg-black ml-1 animate-pulse"></span>
-            </div>
-            <div class="flex items-center justify-between mt-auto">
-                <div class="flex gap-2">
-                    <button class="w-8 h-8 rounded-full border border-surface-variant flex items-center justify-center text-on-surface-variant hover:bg-surface-variant/50 transition-colors">
-                        <span class="material-symbols-outlined text-[16px]">add</span>
-                    </button>
-                    <button class="h-8 px-3 rounded-full border border-surface-variant flex items-center gap-1.5 text-xs text-on-surface-variant font-medium hover:bg-surface-variant/50 transition-colors">
-                        <span class="material-symbols-outlined text-[14px]">image</span> Attach
-                    </button>
-                    <button class="h-8 px-3 rounded-full border border-surface-variant flex items-center gap-1.5 text-xs text-on-surface-variant font-medium hover:bg-surface-variant/50 transition-colors">
-                        <span class="material-symbols-outlined text-[14px]">public</span> Public
-                    </button>
-                </div>
-                <button class="w-8 h-8 rounded-full bg-[#2f3131] text-white flex items-center justify-center hover:opacity-90 transition-opacity">
-                    <span class="material-symbols-outlined text-[16px]">arrow_upward</span>
-                </button>
-            </div>
-        </div>
+<!-- Alternating stat cards (left / right / left / right) -->
+<div class="flex flex-col gap-10 md:gap-12">
 
-        <!-- Step 2 Mockup (Chat Conversation) -->
-        <div id="mockup-2" class="mockup-view hidden bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.06)] border border-surface-variant/30 w-full max-w-[420px] h-[350px] flex-col relative overflow-hidden transition-all duration-300 transform scale-95 opacity-0 z-10">
-            <div class="flex-1 overflow-hidden relative" id="chat-scroll-container">
-                <div class="absolute w-full px-4 left-0 flex flex-col gap-6 mt-8" style="animation: scrollUpChat 15s linear infinite;">
-                    <!-- User bubble -->
-                    <div class="flex justify-end">
-                        <div class="bg-[#f3f3f3] text-on-background p-3 rounded-2xl rounded-tr-sm max-w-[85%] text-[13px] shadow-sm">
-                            Quelles sont les compétences pour devenir développeur web ? Je pars de zéro.
-                        </div>
-                    </div>
-                    <!-- AI bubble -->
-                    <div class="flex justify-start">
-                        <div class="text-on-background max-w-[95%] text-[13px] flex flex-col gap-4 pb-20">
-                            <!-- Context/Summary Bubble -->
-                            <div class="bg-surface-container-low p-4 rounded-xl text-gray-600 text-xs shadow-sm border border-surface-variant/50">
-                                <b>1. Profil de départ</b><br>
-                                - Niveau : Débutant (zéro absolu)<br>
-                                <b>2. Objectif ciblé</b><br>
-                                - Devenir développeur web Full-Stack
-                            </div>
-                            
-                            <p>C'est très clair. Avec ce profil, l'apprentissage va passer d'une simple curiosité à un vrai parcours technique et structuré.</p>
-                            <p>Voici une proposition de compétences, conçue pour être assimilée étape par étape.</p>
-                            
-                            <div class="space-y-2">
-                                <h4 class="font-bold text-sm">Socle Technique Recommandé</h4>
-                                <ul class="list-none space-y-3 mt-2">
-                                    <li class="flex items-start gap-2">
-                                        <span class="material-symbols-outlined text-[16px] text-primary mt-0.5">trip_origin</span>
-                                        <div>
-                                            <b>La Fondation (Front-end) :</b> Pour commencer, le plus simple est de maîtriser le <code>HTML</code> et <code>CSS</code>. Cela permet de structurer les pages web et de gérer le style.
-                                        </div>
-                                    </li>
-                                    <li class="flex items-start gap-2">
-                                        <span class="material-symbols-outlined text-[16px] text-tertiary mt-0.5">trip_origin</span>
-                                        <div>
-                                            <b>L'Interactivité (JavaScript) :</b> On utilise JS pour la logique. 
-                                            <div class="bg-surface-container-low p-2 rounded mt-1 text-xs text-gray-500 border border-surface-variant/50">
-                                                <i>Note : Ne pas se perdre dans les frameworks (React/Vue) avant de maîtriser les bases.</i>
-                                            </div>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- Input area -->
-            <div class="absolute bottom-0 w-full bg-white p-3 border-t border-surface-variant/30 z-10 shadow-[0_-4px_10px_rgba(0,0,0,0.02)]">
-                <div class="flex items-center bg-[#f9f9f9] rounded-full px-4 py-2 border border-surface-variant/50">
-                    <span class="material-symbols-outlined text-gray-400 text-[18px] mr-2">add</span>
-                    <div class="text-[13px] text-gray-500 flex-1">Écrivez un message...</div>
-                    <button class="w-7 h-7 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center ml-2 border border-primary/20 shadow-sm">
-                        <span class="material-symbols-outlined text-[14px]">arrow_upward</span>
-                    </button>
-                </div>
-            </div>
-        </div>
+<!-- Carte 1 (gauche) -->
+<article class="stat-card from-left self-start w-full md:w-[55%] bg-surface-container-lowest border border-surface-variant rounded-2xl p-8 md:p-10 shadow-sm">
+<div class="font-display-lg font-bold text-primary text-5xl md:text-6xl leading-none tracking-tight mb-5">+830 M</div>
+<p class="text-body-md font-body-md text-on-background mb-4">Jeunes dans le monde d'ici 2050 qui auront besoin d'orientation professionnelle</p>
+<span class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">United Nations</span>
+</article>
 
-        <!-- Step 3 Mockup (JOG text animation) -->
-        <div id="mockup-3" class="mockup-view hidden w-full h-full flex-col items-center justify-center transition-all duration-300 transform scale-95 opacity-0 absolute inset-0 z-10 overflow-hidden bg-[#f6f5f0] rounded-2xl">
-            <div class="flex items-center justify-center font-display-lg font-bold text-[120px] tracking-tighter translate-y-12" style="animation: jogContainer 4s ease-in-out infinite;">
-                <span class="text-primary" style="animation: jogJ 4s ease-out infinite;">J</span>
-                <span class="text-tertiary" style="animation: jogO 4s ease-out infinite;">O</span>
-                <span class="text-primary" style="animation: jogG 4s ease-out infinite;">G</span>
-            </div>
-            <div class="px-6 py-2 rounded-full bg-white shadow-[0_4px_24px_rgba(0,0,0,0.08)] border border-surface-variant/30 text-on-surface-variant text-sm font-medium animate-bounce absolute bottom-6 left-6">
-                Votre carrière démarre ici
-            </div>
-        </div>
+<!-- Carte 2 (droite) -->
+<article class="stat-card from-right self-end w-full md:w-[55%] bg-surface-container-lowest border border-surface-variant rounded-2xl p-8 md:p-10 shadow-sm">
+<div class="font-display-lg font-bold text-primary text-5xl md:text-6xl leading-none tracking-tight mb-5">1 sur 4</div>
+<p class="text-body-md font-body-md text-on-background mb-4">Jeunes en Afrique subsaharienne ni en emploi, ni en études, ni en formation (NEET)</p>
+<span class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">ILOSTAT</span>
+</article>
 
-    </div>
+<!-- Carte 3 (gauche) -->
+<article class="stat-card from-left self-start w-full md:w-[55%] bg-surface-container-lowest border border-surface-variant rounded-2xl p-8 md:p-10 shadow-sm">
+<div class="font-display-lg font-bold text-primary text-5xl md:text-6xl leading-none tracking-tight mb-5">La majorité</div>
+<p class="text-body-md font-body-md text-on-background mb-4">Des jeunes s'orientent sans information suffisante — « on fait vite, et la plupart du temps on se trompe »</p>
+<span class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">Unaf</span>
+</article>
 
-    <!-- Right Column: Steps -->
-    <div class="flex flex-col gap-2 max-w-[460px]">
-        <!-- Active Step -->
-        <div class="step-card p-5 border border-black rounded-md cursor-pointer transition-all shadow-sm" data-step="1">
-            <h3 class="step-title text-[22px] font-bold text-black mb-1.5 tracking-tight leading-tight transition-colors">Commencez par une idée</h3>
-            <p class="step-desc text-[#4b5563] text-[14px] leading-relaxed transition-colors">
-                Décrivez vos ambitions, vos doutes ou le métier qui vous intéresse, ou déposez votre CV et vos documents
-            </p>
-        </div>
+<!-- Carte 4 (droite) -->
+<article class="stat-card from-right self-end w-full md:w-[55%] bg-surface-container-lowest border border-surface-variant rounded-2xl p-8 md:p-10 shadow-sm">
+<div class="font-display-lg font-bold text-primary text-5xl md:text-6xl leading-none tracking-tight mb-5">4,8 %</div>
+<p class="text-body-md font-body-md text-on-background mb-4">Des étudiants africains partent étudier à l'étranger faute de lisibilité sur l'offre locale</p>
+<span class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">CIOMAG</span>
+</article>
 
-        <!-- Inactive Step 1 -->
-        <div class="step-card p-5 border border-transparent rounded-md cursor-pointer transition-all group" data-step="2">
-            <h3 class="step-title text-[22px] font-bold text-[#9ca3af] group-hover:text-[#6b7280] mb-1.5 tracking-tight leading-tight transition-colors">Regardez-la prendre vie</h3>
-            <p class="step-desc text-[#9ca3af] group-hover:text-[#6b7280] text-[14px] leading-relaxed transition-colors">
-                Voyez notre IA analyser votre profil et vous proposer des parcours personnalisés en temps réel, à mesure qu'elle les construit pour vous
-            </p>
-        </div>
-
-        <!-- Inactive Step 2 -->
-        <div class="step-card p-5 border border-transparent rounded-md cursor-pointer transition-all group" data-step="3">
-            <h3 class="step-title text-[22px] font-bold text-[#9ca3af] group-hover:text-[#6b7280] mb-1.5 tracking-tight leading-tight transition-colors">Peaufinez et publiez</h3>
-            <p class="step-desc text-[#9ca3af] group-hover:text-[#6b7280] text-[14px] leading-relaxed transition-colors">
-                Améliorez vos recommandations avec des retours simples et obtenez un plan d'action concret en un clic
-            </p>
-        </div>
-    </div>
 </div>
 </div>
 </section>
