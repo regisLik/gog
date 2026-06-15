@@ -69,8 +69,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (!Array.isArray(jobs) || jobs.length === 0) return;
 
-        const ORBIT_DURATION = 40; // seconds for one card to cross the whole arc
-        const VISIBLE_CARDS = 8;   // number of cards on screen at the same time
+        const ORBIT_DURATION = 40000; // ms for one full orbit
+        const VISIBLE_CARDS = 8;      // number of cards on screen at the same time
 
         // Shuffled play order. We always walk forward through this list, so the
         // jobs cycle in a stable order rather than jumping around at random.
@@ -81,8 +81,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const onScreen = new Set();
 
         function pickNextJob() {
-            // Advance through the playlist until we hit a job that isn't already
-            // visible. With far more jobs than visible cards this always succeeds.
             for (let i = 0; i < playlist.length; i++) {
                 const job = playlist[nextIndex % playlist.length];
                 nextIndex++;
@@ -91,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return playlist[nextIndex++ % playlist.length];
         }
 
-        function buildCard(job) {
+        function buildButton(job) {
             const floatDelay = Math.random() * 2;
             const button = document.createElement('button');
             button.className = `${job.colorClass} rounded-3xl p-4 flex flex-col items-center justify-center gap-2 hover:scale-[1.05] transition-transform duration-300 group border border-white/40 shadow-sm focus:outline-none focus:ring-2 ${job.ringColor} pointer-events-auto orbit-float w-36 h-32`;
@@ -105,45 +103,81 @@ document.addEventListener('DOMContentLoaded', () => {
             return button;
         }
 
-        // Each card is its OWN element. It crosses the arc exactly once, then it is
-        // removed and a brand new card (with the next job) is launched in its place
-        // — a real new block, never a rewrite of a card that's already visible.
-        // `startProgress` (0..1) lets the first cards start mid-arc so the carousel
-        // looks full immediately instead of filling up over the first 40 seconds.
-        function launchCard(startProgress) {
+        const lerp = (a, b, t) => a + (b - a) * t;
+
+        // Position/opacity for a card at progress p (0..1). Same arc as the old CSS
+        // keyframes, but computed in JS so a card's position is purely a function of
+        // the shared clock — cards can never drift apart, stack, or burst-respawn.
+        function applyArc(el, p) {
+            let rotate, scale, opacity;
+            if (p < 0.1) {
+                const t = p / 0.1;
+                rotate = lerp(-45, -36, t); scale = lerp(0.5, 1, t); opacity = t;
+            } else if (p < 0.9) {
+                rotate = lerp(-36, 36, (p - 0.1) / 0.8); scale = 1; opacity = 1;
+            } else {
+                const t = (p - 0.9) / 0.1;
+                rotate = lerp(36, 45, t); scale = lerp(1, 0.5, t); opacity = 1 - t;
+            }
+            el.style.transform = `translate(-50%, -50%) rotate(${rotate}deg) translateY(-120vh) scale(${scale})`;
+            el.style.opacity = opacity;
+        }
+
+        // 8 permanent slots, each at a FIXED phase offset along the orbit.
+        const slots = [];
+        orbitContainer.innerHTML = '';
+        for (let i = 0; i < VISIBLE_CARDS; i++) {
+            const wrapper = document.createElement('div');
+            wrapper.style.position = 'absolute';
+            wrapper.style.top = '0';
+            wrapper.style.left = '0';
+            wrapper.style.willChange = 'transform, opacity';
+
             const job = pickNextJob();
             onScreen.add(job.title);
+            wrapper.appendChild(buildButton(job));
+            orbitContainer.appendChild(wrapper);
 
-            const card = document.createElement('div');
-            card.className = 'absolute arc-card-wrapper';
-            card.style.animationIterationCount = '1';
-            card.style.animationFillMode = 'forwards'; // hold the final (invisible) frame, no flash before removal
-            card.style.animationDelay = `${-startProgress * ORBIT_DURATION}s`;
-            card.appendChild(buildCard(job));
-
-            card.addEventListener('animationend', (e) => {
-                // The inner float loops forever and never "ends"; only react to the
-                // orbit animation completing. (animationend bubbles up from children.)
-                if (e.animationName !== 'arcOrbitAnim') return;
-                onScreen.delete(job.title);
-                card.remove();
-                launchCard(0); // its replacement starts a fresh full turn from the left
-            });
-
-            orbitContainer.appendChild(card);
+            const offset = i / VISIBLE_CARDS;
+            slots.push({ el: wrapper, offset, title: job.title, prevP: offset });
         }
 
-        orbitContainer.innerHTML = '';
-        // Seed the arc full: spread the first cards evenly along it.
-        for (let i = 0; i < VISIBLE_CARDS; i++) {
-            launchCard(i / VISIBLE_CARDS);
+        // When a slot wraps past the end of the arc (invisible point), swap in a
+        // brand new card with the next job — never rewrites a visible card.
+        function swapJob(slot) {
+            onScreen.delete(slot.title);
+            const job = pickNextJob();
+            slot.title = job.title;
+            onScreen.add(job.title);
+            slot.el.replaceChildren(buildButton(job));
         }
 
-        // Freeze the orbit while the tab is hidden, then resume on return. This
-        // keeps the animations from advancing (and firing a burst of end events) in
-        // the background, which is what used to leave the cards stacked on return.
-        document.addEventListener('visibilitychange', () => {
-            orbitContainer.classList.toggle('orbit-paused', document.hidden);
-        });
+        // Pause the orbit on hover (events bubble up from the buttons).
+        let paused = false;
+        orbitContainer.addEventListener('mouseover', () => { paused = true; });
+        orbitContainer.addEventListener('mouseout', () => { paused = false; });
+
+        // Single rAF clock drives every slot. A hidden tab simply doesn't tick, and
+        // the clamped delta means it resumes exactly where it froze — no jump, no
+        // desync, ever.
+        let elapsed = 0;
+        let lastTime = null;
+
+        function frame(now) {
+            if (lastTime === null) lastTime = now;
+            const dt = Math.min(now - lastTime, 50);
+            lastTime = now;
+            if (!paused) elapsed += dt;
+
+            const base = elapsed / ORBIT_DURATION;
+            for (const slot of slots) {
+                const p = (base + slot.offset) % 1;
+                if (p < slot.prevP) swapJob(slot); // wrapped to a new turn
+                slot.prevP = p;
+                applyArc(slot.el, p);
+            }
+            requestAnimationFrame(frame);
+        }
+        requestAnimationFrame(frame);
     }
 });
